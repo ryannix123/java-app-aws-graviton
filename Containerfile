@@ -17,6 +17,11 @@ COPY HelloWorld.java /app/
 # Copy the HTML file to httpd's document root
 COPY index.html /var/www/html/
 
+# Create images directory in httpd document root and copy the image files
+RUN mkdir -p /var/www/html/images
+COPY images/RedHat.png /var/www/html/images/
+COPY images/Graviton.png /var/www/html/images/
+
 # Configure httpd to listen on port 8080 instead of 80
 RUN sed -i 's/Listen 80/Listen 8080/' /etc/httpd/conf/httpd.conf && \
     # Also update any references to port 80 in the welcome page configs
@@ -25,7 +30,7 @@ RUN sed -i 's/Listen 80/Listen 8080/' /etc/httpd/conf/httpd.conf && \
 # Compile the Java code
 RUN javac HelloWorld.java
 
-# Expose port 8080 for httpd (non-privileged port for OpenShift)
+# Expose port 8080 for httpd
 EXPOSE 8080
 
 # Create start script
