@@ -22,17 +22,13 @@ podman build -t hello-rhel9-graviton .
 
 ## Step 3: Run the Container
 
-```bash
-podman run -p 8080:8080 hello-rhel9-graviton
-```
-
-Access the web interface at http://localhost:8080 to see the HTML page with Red Hat and AWS Graviton logos.
-
 To run the container in the background:
 
 ```bash
 podman run -d --name hello-rhel9-container -p 8080:8080 localhost/hello-rhel9-graviton httpd -DFOREGROUND
 ```
+
+Access the web interface at http://localhost:8080 to see the HTML page with Red Hat and AWS Graviton logos.
 
 ## Additional Options
 
