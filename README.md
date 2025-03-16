@@ -6,9 +6,34 @@ This guide provides instructions for building and running the Java Hello World a
 
 - Podman installed on your system
 - Basic familiarity with container concepts
-- Git (optional, for cloning the repository)
+- The image files (RedHat.png and Graviton.png) in an "images" directory
 
-## Step 1: Prepare the Files
+## Step 1: Prepare the Directory Structure
+
+First, create a project directory with the correct structure:
+
+```bash
+# Create project directory
+mkdir -p hello-rhel9-app
+cd hello-rhel9-app
+
+# Create images directory for the logo files
+mkdir -p images
+```
+
+Place your logo files in the images directory:
+- `images/RedHat.png`
+- `images/Graviton.png`
+
+Your directory structure should look like this:
+```
+hello-rhel9-app/
+├── images/
+│   ├── RedHat.png
+│   └── Graviton.png
+```
+
+## Step 2: Create the Required Files
 
 Create the following files in your working directory:
 
@@ -79,12 +104,24 @@ public class HelloWorld {
     </div>
     
     <div class="logo-container">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/d/d8/Red_Hat_logo.svg" alt="Red Hat Logo" class="logo">
-        <img src="https://d2908q01vomqb2.cloudfront.net/da4b9237bacccdf19c0760cab7aec4a8359010b0/2021/11/29/Site-Merch_EC2-Graviton3_Blog.png" alt="AWS Graviton Logo" class="logo">
+        <img src="/images/RedHat.png" alt="Red Hat Logo" class="logo">
+        <img src="/images/Graviton.png" alt="AWS Graviton Logo" class="logo">
     </div>
 </body>
 </html>
 ```
+
+**3. Directory Structure**
+
+Create a directory for the images:
+
+```bash
+mkdir -p images
+```
+
+Place the following files in the images directory:
+- images/RedHat.png
+- images/Graviton.png
 
 **3. Dockerfile**
 
@@ -108,6 +145,13 @@ COPY HelloWorld.java /app/
 # Copy the HTML file to httpd's document root
 COPY index.html /var/www/html/
 
+# Create images directory in httpd document root
+RUN mkdir -p /var/www/html/images
+
+# Copy the image files to httpd's document root
+COPY images/RedHat.png /var/www/html/images/
+COPY images/Graviton.png /var/www/html/images/
+
 # Configure httpd to listen on port 8080 instead of 80
 RUN sed -i 's/Listen 80/Listen 8080/' /etc/httpd/conf/httpd.conf && \
     # Also update any references to port 80 in the welcome page configs
@@ -129,7 +173,36 @@ RUN echo '#!/bin/bash' > /app/start.sh && \
 CMD ["/app/start.sh"]
 ```
 
-## Step 2: Build the Container Image
+## Step 3: Verify Your Directory Structure
+
+Before building, make sure your directory structure looks like this:
+
+```
+hello-rhel9-app/
+├── Dockerfile
+├── HelloWorld.java
+├── index.html
+└── images/
+    ├── RedHat.png
+    └── Graviton.png
+```
+
+You can verify this with:
+
+```bash
+find . -type f | sort
+```
+
+The output should include these files:
+```
+./Dockerfile
+./HelloWorld.java
+./images/Graviton.png
+./images/RedHat.png
+./index.html
+```
+
+## Step 4: Build the Container Image
 
 Build the container image using Podman:
 
@@ -137,7 +210,18 @@ Build the container image using Podman:
 podman build -t hello-rhel9-graviton .
 ```
 
-## Step 3: Run the Container Locally
+During the build process, you should see the steps from the Dockerfile being executed, including:
+- Installing OpenJDK and httpd
+- Copying the Java file, HTML file, and image files
+- Creating the images directory
+- Compiling the Java code
+
+If you encounter any errors related to missing image files, verify that:
+1. The `images` directory exists in the same directory as your Dockerfile
+2. The image files are named exactly `RedHat.png` and `Graviton.png`
+3. The files are directly inside the `images` directory (not in subdirectories)
+
+## Step 5: Run the Container Locally
 
 Run the container with Podman:
 
@@ -151,7 +235,24 @@ This will:
 
 The terminal will display the Java application output, and you can access the web interface at http://localhost:8080
 
-## Step 4: Build for Different Architectures (Optional)
+To verify that the images are being served correctly:
+1. Open http://localhost:8080 in your browser
+2. You should see both logos displayed side by side
+3. If the images don't appear, check your browser's developer tools (F12) to see if there are any 404 errors for the image paths
+
+To run the container in the background:
+
+```bash
+podman run -d --name hello-rhel9-container -p 8080:8080 hello-rhel9-graviton
+```
+
+You can then check the logs with:
+
+```bash
+podman logs hello-rhel9-container
+```
+
+## Step 6: Build for Different Architectures (Optional)
 
 If you need to build for ARM64 architecture (AWS Graviton):
 
