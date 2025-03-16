@@ -31,7 +31,7 @@ Access the web interface at http://localhost:8080 to see the HTML page with Red 
 To run the container in the background:
 
 ```bash
-podman run -d --name hello-rhel9-container -p 8080:8080 hello-rhel9-graviton
+podman run -d --name hello-rhel9-container -p 8080:8080 localhost/hello-rhel9-graviton httpd -DFOREGROUND
 ```
 
 ## Additional Options
